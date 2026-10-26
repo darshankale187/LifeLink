@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tka.model.Donor;
 import com.tka.service.DonorService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,7 +22,7 @@ public class DonorController {
 	private final DonorService service;
 
 	@PostMapping
-	public Donor add(@RequestBody Donor donor) {
+	public Donor add(@Valid @RequestBody Donor donor) {
 		return service.add(donor);
 	}
 

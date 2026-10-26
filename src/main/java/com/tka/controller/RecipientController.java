@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tka.model.Recipient;
 import com.tka.service.RecipientService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,7 +22,7 @@ public class RecipientController {
 	private final RecipientService service;
 
 	@PostMapping
-	public Recipient add(@RequestBody Recipient recipient) {
+	public Recipient add(@Valid @RequestBody Recipient recipient) {
 		return service.add(recipient);
 	}
 
