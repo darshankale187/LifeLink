@@ -27,6 +27,9 @@ api.interceptors.response.use(
       ["lifelink_token", "lifelink_user", "lifelink_role"].forEach((k) => localStorage.removeItem(k));
       window.location.href = "/login";
     }
+    if (err.response.status === 403) {
+      return Promise.reject({ message: "You do not have permission to do this." });
+    }
 
     const data = err.response.data || {};
     return Promise.reject(

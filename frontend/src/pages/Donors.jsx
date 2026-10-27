@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addDonor, fetchDonors } from "../store/donorsSlice";
+import { useAuth } from "../context/AuthContext";
 import FormCard from "../components/FormCard";
 import Badge from "../components/Badge";
 import Alert from "../components/Alert";
@@ -19,6 +20,7 @@ const fields = [
 
 export default function Donors() {
   const dispatch = useDispatch();
+  const { isAdmin } = useAuth();
   const { list, loading, error, fieldErrors } = useSelector((s) => s.donors);
   const [values, setValues] = useState(empty);
   const [saved, setSaved] = useState(false);
@@ -45,16 +47,19 @@ export default function Donors() {
 
       {error && <Alert>{error}</Alert>}
       {saved && <Alert type="success">Donor saved successfully</Alert>}
+      {!isAdmin && <Alert type="info">You have view-only access. Only an admin can add records.</Alert>}
 
-      <div className="split">
-        <FormCard
-          title="Add donor"
-          fields={fields}
-          values={values}
-          setValues={setValues}
-          onSubmit={submit}
-          errors={fieldErrors}
-        />
+      <div className={isAdmin ? "split" : ""}>
+        {isAdmin && (
+          <FormCard
+            title="Add donor"
+            fields={fields}
+            values={values}
+            setValues={setValues}
+            onSubmit={submit}
+            errors={fieldErrors}
+          />
+        )}
 
         <div className="card">
           <h3>All donors ({list.length})</h3>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addRecipient, fetchRecipients } from "../store/recipientsSlice";
+import { useAuth } from "../context/AuthContext";
 import FormCard from "../components/FormCard";
 import Badge from "../components/Badge";
 import Alert from "../components/Alert";
@@ -20,6 +21,7 @@ const fields = [
 
 export default function Recipients() {
   const dispatch = useDispatch();
+  const { isAdmin } = useAuth();
   const { list, loading, error, fieldErrors } = useSelector((s) => s.recipients);
   const [values, setValues] = useState(empty);
   const [saved, setSaved] = useState(false);
@@ -46,16 +48,19 @@ export default function Recipients() {
 
       {error && <Alert>{error}</Alert>}
       {saved && <Alert type="success">Recipient saved successfully</Alert>}
+      {!isAdmin && <Alert type="info">You have view-only access. Only an admin can add records.</Alert>}
 
-      <div className="split">
-        <FormCard
-          title="Add recipient"
-          fields={fields}
-          values={values}
-          setValues={setValues}
-          onSubmit={submit}
-          errors={fieldErrors}
-        />
+      <div className={isAdmin ? "split" : ""}>
+        {isAdmin && (
+          <FormCard
+            title="Add recipient"
+            fields={fields}
+            values={values}
+            setValues={setValues}
+            onSubmit={submit}
+            errors={fieldErrors}
+          />
+        )}
 
         <div className="card">
           <h3>Waiting list ({list.length})</h3>

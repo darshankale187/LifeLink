@@ -10,7 +10,7 @@ const links = [
 ];
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, role, logout } = useAuth();
   const { theme, toggle } = useTheme();
   const navigate = useNavigate();
 
@@ -40,7 +40,9 @@ export default function Navbar() {
         <button className="btn btn-ghost btn-sm" onClick={toggle}>
           {theme === "light" ? "Dark" : "Light"} mode
         </button>
-        <span className="user-chip">{user}</span>
+        <span className="user-chip">
+          {user} ({role})
+        </span>
         <button className="btn btn-secondary btn-sm" onClick={handleLogout}>
           Logout
         </button>
