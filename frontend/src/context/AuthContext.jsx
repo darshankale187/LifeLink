@@ -1,25 +1,33 @@
 import { createContext, useContext, useState } from "react";
+import { postJson } from "../api";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => localStorage.getItem("lifelink_user"));
+  const [role, setRole] = useState(() => localStorage.getItem("lifelink_role"));
 
-  const login = (username, password) => {
-    if (username === "admin" && password === "admin123") {
-      localStorage.setItem("lifelink_user", username);
-      setUser(username);
-      return true;
-    }
-    return false;
+  const authenticate = async (path, username, password) => {
+    const data = await postJson(path, { username, password });
+    localStorage.setItem("lifelink_token", data.token);
+    localStorage.setItem("lifelink_user", data.username);
+    localStorage.setItem("lifelink_role", data.role);
+    setUser(data.username);
+    setRole(data.role);
   };
+
+  const login = (username, password) => authenticate("auth/login", username, password);
+  const register = (username, password) => authenticate("auth/register", username, password);
 
   const logout = () => {
-    localStorage.removeItem("lifelink_user");
+    ["lifelink_token", "lifelink_user", "lifelink_role"].forEach((k) => localStorage.removeItem(k));
     setUser(null);
+    setRole(null);
   };
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, role, login, register, logout }}>{children}</AuthContext.Provider>
+  );
 }
 
 export const useAuth = () => useContext(AuthContext);
