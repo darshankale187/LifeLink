@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addRecipient, fetchRecipients } from "../store/recipientsSlice";
+import {
+  addRecipient,
+  deleteRecipient,
+  fetchRecipients,
+  updateRecipient,
+} from "../store/recipientsSlice";
 import { useAuth } from "../context/AuthContext";
 import FormCard from "../components/FormCard";
 import Badge from "../components/Badge";
@@ -24,18 +29,40 @@ export default function Recipients() {
   const { isAdmin } = useAuth();
   const { list, loading, error, fieldErrors } = useSelector((s) => s.recipients);
   const [values, setValues] = useState(empty);
-  const [saved, setSaved] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     dispatch(fetchRecipients());
   }, [dispatch]);
 
+  const reset = () => {
+    setValues(empty);
+    setEditingId(null);
+  };
+
+  const flash = (text) => {
+    setMessage(text);
+    setTimeout(() => setMessage(""), 2500);
+  };
+
   const submit = async () => {
-    const res = await dispatch(addRecipient(values));
-    if (addRecipient.fulfilled.match(res)) {
-      setValues(empty);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+    const res = await dispatch(editingId ? updateRecipient(values) : addRecipient(values));
+    if (res.meta.requestStatus === "fulfilled") {
+      flash(editingId ? "Recipient updated" : "Recipient saved");
+      reset();
+    }
+  };
+
+  const startEdit = (recipient) => {
+    setEditingId(recipient.id);
+    setValues({ ...recipient });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const remove = (recipient) => {
+    if (window.confirm(`Delete recipient ${recipient.name}?`)) {
+      dispatch(deleteRecipient(recipient.id));
     }
   };
 
@@ -47,18 +74,20 @@ export default function Recipients() {
       </div>
 
       {error && <Alert>{error}</Alert>}
-      {saved && <Alert type="success">Recipient saved successfully</Alert>}
-      {!isAdmin && <Alert type="info">You have view-only access. Only an admin can add records.</Alert>}
+      {message && <Alert type="success">{message}</Alert>}
+      {!isAdmin && <Alert type="info">You have view-only access. Only an admin can add, edit or delete records.</Alert>}
 
       <div className={isAdmin ? "split" : ""}>
         {isAdmin && (
           <FormCard
-            title="Add recipient"
+            title={editingId ? "Edit recipient" : "Add recipient"}
             fields={fields}
             values={values}
             setValues={setValues}
             onSubmit={submit}
             errors={fieldErrors}
+            submitLabel={editingId ? "Update" : "Save"}
+            onCancel={editingId ? reset : undefined}
           />
         )}
 
@@ -89,9 +118,21 @@ export default function Recipients() {
                       <td>{r.city}</td>
                       <td><Badge text={r.urgency} type={urgencyType(r.urgency)} /></td>
                       <td>
-                        <Link className="btn btn-sm" to={`/match/${r.id}`}>
-                          Find match
-                        </Link>
+                        <div className="actions">
+                          <Link className="btn btn-sm" to={`/match/${r.id}`}>
+                            Find match
+                          </Link>
+                          {isAdmin && (
+                            <>
+                              <button className="btn btn-secondary btn-sm" onClick={() => startEdit(r)}>
+                                Edit
+                              </button>
+                              <button className="btn btn-danger btn-sm" onClick={() => remove(r)}>
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

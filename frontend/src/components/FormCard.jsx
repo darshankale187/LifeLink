@@ -1,4 +1,13 @@
-export default function FormCard({ title, fields, values, setValues, onSubmit, errors }) {
+export default function FormCard({
+  title,
+  fields,
+  values,
+  setValues,
+  onSubmit,
+  errors,
+  submitLabel = "Save",
+  onCancel,
+}) {
   const change = (field, value) =>
     setValues({ ...values, [field.name]: field.type === "number" ? Number(value) : value });
 
@@ -37,9 +46,16 @@ export default function FormCard({ title, fields, values, setValues, onSubmit, e
         </div>
       ))}
 
-      <button className="btn" type="submit">
-        Save
-      </button>
+      <div className="actions">
+        <button className="btn" type="submit">
+          {submitLabel}
+        </button>
+        {onCancel && (
+          <button className="btn btn-secondary" type="button" onClick={onCancel}>
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   );
 }

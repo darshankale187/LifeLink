@@ -35,6 +35,8 @@ public class SecurityConfig {
 				.exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 				.authorizeHttpRequests(a -> a.requestMatchers("/api/auth/**", "/error").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/donors", "/api/recipients").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.PUT, "/api/donors/*", "/api/recipients/*").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.DELETE, "/api/donors/*", "/api/recipients/*").hasRole("ADMIN")
 						.anyRequest().authenticated())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

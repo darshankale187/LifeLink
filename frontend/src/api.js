@@ -49,3 +49,12 @@ export const postJson = async (path, body) => {
   const res = await api.post(path, body);
   return res.data;
 };
+
+export const putJson = async (path, body) => {
+  const res = await api.put(path, body);
+  return res.data;
+};
+
+export const deleteJson = async (path) => {
+  await api.delete(path);
+};
