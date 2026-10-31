@@ -8,6 +8,7 @@ public class Organapp1Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Organapp1Application.class, args);
+		System.err.println("LifeLink Projct is running....!");
 	}
 
 }
